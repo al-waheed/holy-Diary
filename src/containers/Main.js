@@ -1,39 +1,63 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import { Modal } from "react-bootstrap";
-import { addItem, deleteItem } from "../redux/actions";
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { addItem, deleteItem, editItem } from "../redux/actions";
 import DiaryForm from "../components/DiaryForm";
 import DiaryItem from "../components/DiaryItem";
+import { Modal, Button, Form } from "react-bootstrap";
+import { CiEdit } from "react-icons/ci";
 
-export class Main extends Component {
-  state = {
-    show: false,
-    activeItem: null,
+const Main = () => {
+  const [show, setShow] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [activeItem, setActiveItem] = useState(null);
+  const diaryItems = useSelector((state) => state.diaryItems);
+  const dispatch = useDispatch();
+  const [updatedData, setUpdatedData] = useState({
+    title: "",
+    text: "",
+    date: "",
+  });
+
+  const handleEdit = () => {
+    if (
+      activeItem &&
+      updatedData.title &&
+      updatedData.text &&
+      updatedData.date
+    ) {
+      dispatch(editItem(activeItem.id, updatedData));
+      setShow(false);
+      setEditMode(false);
+      setUpdatedData({ title: "", text: "", date: "" });
+    }
   };
-  render() {
-    const { addItem, diaryItems, deleteItem } = this.props;
-    const { show, activeItem } = this.state;
-    return (
-      <div className="max-w-[1300px] mx-auto">
-        <div className=" flex justify-center items-center ">
-          <div className="bg-white shadow-2xl w-[50%] m-4">
+
+  return (
+    <div>
+      <div>
+        <div className="grid-container">
+          <div className="diary-app">
             <h1>Dear Diary...</h1>
-            <DiaryForm addItem={(item) => addItem(item)} />
+            <DiaryForm addItem={(item) => dispatch(addItem(item))} />
           </div>
-          <div className="bg-white shadow-2xl w-[50%] m-4" style={{ paddingTop: 20 }}>
+          <div className="diary-app" style={{ paddingTop: 20 }}>
             {diaryItems.length > 0 ? (
-              diaryItems.map((item) => {
-                return (
-                  <DiaryItem
-                    deleteItem={(id) => deleteItem(id)}
-                    showModal={(item) =>
-                      this.setState({ show: true, activeItem: item })
-                    }
-                    key={item.id}
-                    item={item}
-                  />
-                );
-              })
+              diaryItems.map((item) => (
+                <DiaryItem
+                  key={item.id}
+                  item={item}
+                  deleteItem={(id) => dispatch(deleteItem(id))}
+                  showModal={(item) => {
+                    setShow(true);
+                    setActiveItem(item);
+                    setUpdatedData({
+                      title: item.title,
+                      text: item.text,
+                      date: item.date,
+                    });
+                  }}
+                />
+              ))
             ) : (
               <h1>No Items</h1>
             )}
@@ -42,29 +66,75 @@ export class Main extends Component {
         <Modal
           size="lg"
           show={show}
-          onHide={() => this.setState({ show: false })}
+          onHide={() => {
+            setShow(false);
+            setEditMode(false);
+          }}
           aria-labelledby="example-modal-sizes-title-lg"
         >
           <Modal.Header closeButton>
             <Modal.Title id="example-modal-sizes-title-lg">
-              {activeItem?.title}
+              {editMode ? "Edit Item" : activeItem?.title}
             </Modal.Title>
           </Modal.Header>
-          <Modal.Body>{activeItem?.text}</Modal.Body>
-          <Modal.Footer>{activeItem?.date}</Modal.Footer>
+          <Modal.Body>
+            {editMode ? (
+              <Form>
+                <Form.Group controlId="formTitle">
+                  <Form.Label>Title</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={updatedData.title}
+                    onChange={(e) =>
+                      setUpdatedData({ ...updatedData, title: e.target.value })
+                    }
+                  />
+                </Form.Group>
+                <Form.Group controlId="formText">
+                  <Form.Label>Text</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={updatedData.text}
+                    onChange={(e) =>
+                      setUpdatedData({ ...updatedData, text: e.target.value })
+                    }
+                  />
+                </Form.Group>
+                <Form.Group controlId="formDate">
+                  <Form.Label>Date</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={updatedData.date}
+                    onChange={(e) =>
+                      setUpdatedData({ ...updatedData, date: e.target.value })
+                    }
+                  />
+                </Form.Group>
+              </Form>
+            ) : (
+              <div>{activeItem?.text}</div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            {editMode ? (
+              <Button variant="primary" onClick={handleEdit}>
+                Save Changes
+              </Button>
+            ) : (
+              <>
+                <CiEdit
+                  size={24}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setEditMode(true)}
+                />
+              </>
+            )}
+          </Modal.Footer>
         </Modal>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
-const mapStateToProps = (state) => ({
-  diaryItems: state.diaryItems,
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  addItem: (item) => dispatch(addItem(item)),
-  deleteItem: (id) => dispatch(deleteItem(id)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Main);
+export default Main;

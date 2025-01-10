@@ -1,7 +1,7 @@
 import React from "react";
 import { TiDeleteOutline } from "react-icons/ti";
 
-function DiaryItem({ item, showModal, deleteItem }) {
+const DiaryItem = ({ item, showModal, deleteItem }) => {
   return (
     <div className="diary-row">
       <span onClick={() => showModal(item)}>{item.title}</span>

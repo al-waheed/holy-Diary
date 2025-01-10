@@ -1,4 +1,4 @@
-import { ADD_ITEM, DELETE_ITEM } from "./actions";
+import { ADD_ITEM, DELETE_ITEM, EDIT_ITEM } from "./actions";
 
 const initialState = {
   diaryItems: [],
@@ -7,29 +7,41 @@ const initialState = {
 const diaryReducer = (state = initialState, action) => {
   switch (action.type) {
     case ADD_ITEM:
-      let id = 1;
-      if (state.diaryItems.length > 0) {
-        id = state.diaryItems[0].id + 1;
-      }
+      const id =
+        state.diaryItems.length > 0
+          ? Math.max(...state.diaryItems.map((item) => item.id)) + 1
+          : 1;
       let item = {
-        id: id,
+        id,
         title: action.payload.title,
         date: action.payload.date,
         text: action.payload.text,
       };
-      let newDiaryItems = [item, ...state.diaryItems]
-      newDiaryItems = newDiaryItems.sort((a, b) => {
-        return new Date(b.date) - new Date(a.date)
-      })
       return {
         ...state,
-        diaryItems: newDiaryItems,
+        diaryItems: [item, ...state.diaryItems].sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        ),
       };
+
     case DELETE_ITEM:
-        return {
-            ...state,
-            diaryItems: state.diaryItems.filter((item) => item.id !== action.payload)
-        }
+      let deleteItem = state.diaryItems.filter(
+        (item) => item.id !== action.payload
+      );
+      return {
+        ...state,
+        diaryItems: deleteItem,
+      };
+    case EDIT_ITEM:
+      const updatedItems = state.diaryItems.map((item) =>
+        item.id === action.payload.id
+          ? { ...item, ...action.payload.updatedData }
+          : item
+      );
+      return {
+        ...state,
+        diaryItems: updatedItems,
+      };
     default:
       return state;
   }
