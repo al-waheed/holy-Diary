@@ -19,12 +19,7 @@ const Main = () => {
   });
 
   const handleEdit = () => {
-    if (
-      activeItem &&
-      updatedData.title &&
-      updatedData.text &&
-      updatedData.date
-    ) {
+    if (activeItem) {
       dispatch(editItem(activeItem.id, updatedData));
       setShow(false);
       setEditMode(false);
@@ -136,5 +131,4 @@ const Main = () => {
     </div>
   );
 };
-
 export default Main;

@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { ADD_ITEM, DELETE_ITEM, EDIT_ITEM } from "./actions";
 
 const initialState = {
@@ -7,10 +8,7 @@ const initialState = {
 const diaryReducer = (state = initialState, action) => {
   switch (action.type) {
     case ADD_ITEM:
-      const id =
-        state.diaryItems.length > 0
-          ? Math.max(...state.diaryItems.map((item) => item.id)) + 1
-          : 1;
+      const id = state.diaryItems.length > 0 ? uuidv4() : 1;
       let item = {
         id,
         title: action.payload.title,

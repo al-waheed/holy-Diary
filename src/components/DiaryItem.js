@@ -1,5 +1,5 @@
 import React from "react";
-import { TiDeleteOutline } from "react-icons/ti";
+import { MdOutlineDeleteForever } from "react-icons/md";
 
 const DiaryItem = ({ item, showModal, deleteItem }) => {
   return (
@@ -7,7 +7,7 @@ const DiaryItem = ({ item, showModal, deleteItem }) => {
       <span onClick={() => showModal(item)}>{item.title}</span>
       <div>
         <span className="date">{item.date}</span>
-        <TiDeleteOutline
+        <MdOutlineDeleteForever
           onClick={() => deleteItem(item.id)}
           className="delete"
           style={{ color: "red" }}
@@ -15,6 +15,6 @@ const DiaryItem = ({ item, showModal, deleteItem }) => {
       </div>
     </div>
   );
-}
+};
 
 export default DiaryItem;

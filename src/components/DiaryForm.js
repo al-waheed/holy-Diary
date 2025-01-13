@@ -1,21 +1,24 @@
 import React, { useState } from "react";
 
-export default function DiaryForm({ addItem }) {
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
-  const [text, setText] = useState("");
+const DiaryForm = ({ addItem }) => {
+  const [formData, setFormData] = useState({
+    title: "",
+    date: "",
+    text: "",
+  });
 
   const onSubmit = (e) => {
     e.preventDefault();
-    let itemObject = {
-      title: title,
-      date: date,
-      text: text,
-    };
-    addItem(itemObject);
-    setTitle("");
-    setText("");
-    setDate("");
+    addItem(formData);
+    setFormData({ title: "", date: "", text: "" });
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   return (
@@ -23,21 +26,27 @@ export default function DiaryForm({ addItem }) {
       <form onSubmit={onSubmit}>
         <div className="diary-form">
           <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
             placeholder="Add an Item"
+            required
             className="diary-input"
           />
           <input
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
             type="date"
+            required
             className="diary-date-input"
           />
         </div>
         <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+          name="text"
+          value={formData.text}
+          onChange={handleChange}
+          required
           rows="2"
           className="diary-textarea"
         ></textarea>
@@ -47,4 +56,5 @@ export default function DiaryForm({ addItem }) {
       </form>
     </div>
   );
-}
+};
+export default DiaryForm
